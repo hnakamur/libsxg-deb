@@ -1,11 +1,13 @@
 #!/usr/bin/make -f
 export DH_VERBOSE = 1
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
 	dh $@
 
 override_dh_auto_configure:
+	sed -i "s|DESTINATION lib|&/${DEB_HOST_MULTIARCH}|" CMakeLists.txt
 	dh_auto_configure -- -DSKIP_TEST=TRUE \
 	                     -DCMAKE_C_COMPILER=gcc \
 	                     -DCMAKE_CXX_COMPILER=g++ \
