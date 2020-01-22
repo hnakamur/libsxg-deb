@@ -5,7 +5,7 @@ Maintainer: Hiroki Kumazaki <kumagi@google.com>,
 Build-Depends: d-shlibs,
                debhelper (>= 10),
                libssl-dev (>= 1.1.1),
-               clang-9,
+               clang,
                cmake (>= 3.13),
                googletest
 Standards-Version: 4.1.3
