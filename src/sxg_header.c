@@ -18,10 +18,13 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include <openssl/crypto.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "libsxg/internal/sxg_buffer.h"
+#include "libsxg/internal/sxg_cbor.h"
 
 sxg_header_t sxg_empty_header() {
   const sxg_header_t structure = {NULL, 0, 0};
@@ -102,11 +105,8 @@ bool sxg_header_append_buffer(const char* key, const sxg_buffer_t* value,
 
 bool sxg_header_append_integer(const char* key, uint64_t num,
                                sxg_header_t* target) {
-  char integer_buffer[22];
-  size_t nbytes =
-      snprintf(integer_buffer, sizeof(integer_buffer), "%" PRIu64, num);
-
-  assert(nbytes + 1 <= sizeof(integer_buffer));
+  char integer_buffer[21];  // len(str(2 ** 64 - 1)) = 20
+  snprintf(integer_buffer, sizeof(integer_buffer), "%" PRIu64, num);
 
   sxg_buffer_t* buf = get_or_create_buffer(key, target);
   return buf != NULL && sxg_write_string(integer_buffer, buf);
@@ -121,7 +121,6 @@ bool sxg_header_copy(const sxg_header_t* src, sxg_header_t* dst) {
   if (!ensure_free_capacity(src->size, &tmp)) {
     return false;
   }
-
   for (size_t i = 0; i < src->size; ++i) {
     sxg_kvp_t* const new_entry = &tmp.entries[tmp.size++];
     new_entry->key = OPENSSL_strdup(src->entries[i].key);
@@ -168,22 +167,6 @@ static int header_encoding_order(const void* a, const void* b) {
   }
 }
 
-bool sxg_write_cbor_map_header(size_t size, sxg_buffer_t* target) {
-  // https://tools.ietf.org/html/rfc7049#appendix-B
-  // It writes cbor header for map.
-  if (size <= 0x17) {
-    return sxg_write_byte(0xa0 + size, target);
-  } else if (size <= 0xff) {
-    return sxg_write_byte(0xb8, target) && sxg_write_int(size, 1, target);
-  } else if (size <= 0xffff) {
-    return sxg_write_byte(0xb9, target) && sxg_write_int(size, 2, target);
-  } else if (size <= 0xffffffff) {
-    return sxg_write_byte(0xba, target) && sxg_write_int(size, 4, target);
-  } else {
-    return sxg_write_byte(0xbb, target) && sxg_write_int(size, 8, target);
-  }
-}
-
 bool sxg_header_serialize_cbor(const sxg_header_t* src, sxg_buffer_t* dst) {
   const size_t size = src->size;
 
@@ -199,7 +182,7 @@ bool sxg_header_serialize_cbor(const sxg_header_t* src, sxg_buffer_t* dst) {
     qsort(entries, size, sizeof(sxg_kvp_t), header_encoding_order);
   }
 
-  bool success = sxg_write_cbor_map_header(size, dst);
+  bool success = sxg_write_map_cbor_header(size, dst);
   for (size_t i = 0; i < size && success; ++i) {
     success = success && sxg_write_bytes_cbor((const uint8_t*)entries[i].key,
                                               strlen(entries[i].key), dst);

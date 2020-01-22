@@ -3,7 +3,7 @@
 
 ## Introduction
 
-Signed HTTP Exchange(SXG) is file format which contains an HTTP exchange
+Signed HTTP Exchange (SXG) is file format which contains an HTTP exchange
 (request and response) signed by a publisher's origin.
 https://tools.ietf.org/html/draft-yasskin-http-origin-signed-responses-06
 
@@ -30,7 +30,7 @@ $ sudo make install
 
 ## Documents
 
-See [docs](docs/OVERVIEW.md).
+See [docs](docs/index.md).
 
 ## Quickstart
 
@@ -38,6 +38,7 @@ See [docs](docs/OVERVIEW.md).
 #include <assert.h>
 #include <libsxg.h>
 #include <openssl/crypto.h>
+#include <openssl/pem.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
