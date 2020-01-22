@@ -6,8 +6,18 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release \
+	                     -DCMAKE_C_COMPILER=clang-9 \
+	                     -DCMAKE_CXX_COMPILER=clang++-9
 
-override_dh_auto_install:
-	dh_auto_install --builddir
-	dh_install --sourcedir=debian/libsxg-dev/
+override_dh_install:
+	# Call d-shlibmove to comply with library packaging guide
+	d-shlibmove --commit \
+	                        --multiarch \
+	                        --devunversioned \
+	                        --exclude-a \
+	                        --exclude-la \
+	                        --movedev "debian/tmp/usr/include/*" usr/include \
+	                        debian/tmp/usr/lib/lib*.so
+	dh_install
+
