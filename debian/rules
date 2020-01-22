@@ -25,5 +25,7 @@ override_dh_install:
 	                        --exclude-la \
 	                        --movedev "debian/tmp/usr/include/*" usr/include \
 	                        debian/tmp/usr/lib/lib*.so
+	mkdir -p debian/sxg-util/usr/bin/
+	cp debian/tmp/usr/bin/* debian/sxg-util/usr/bin/
 	dh_install
 
