@@ -14,23 +14,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef LIBSXG_INTERNAL_SXG_HEADER_H_
-#define LIBSXG_INTERNAL_SXG_HEADER_H_
+#include <openssl/evp.h>
+#include <openssl/x509.h>
 
-#include <stdbool.h>
+#include <string>
 
 #include "libsxg/sxg_buffer.h"
-#include "libsxg/sxg_header.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace sxg_test {
 
-// Generates data for SXG's signedHeader. Returns true on success.
-bool sxg_header_serialize_cbor(const sxg_header_t* from, sxg_buffer_t* dst);
+std::string BufferToString(const sxg_buffer_t& buf);
 
-#ifdef __cplusplus
-}  // extern "C"
-#endif
+sxg_buffer_t StringToBuffer(const char* src);
 
-#endif  // LIBSXG_INTERNAL_SXG_HEADER_H_
+X509* LoadX509Cert(const std::string& filepath);
+
+EVP_PKEY* LoadPrivateKey(const std::string& filepath);
+
+EVP_PKEY* LoadPublicKey(const std::string& filepath);
+
+EVP_PKEY* LoadEd25519Pubkey(const std::string& filepath);
+
+}  // namespace sxg_test
