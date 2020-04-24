@@ -1,3 +1,9 @@
+libsxg (0.2-1ppa1~focal) focal; urgency=medium
+
+  * Port to Ubuntu 20.04 LTS.
+
+ -- Hiroaki Nakamura <hnakamur@gmail.com>  Fri, 24 Apr 2020 20:38:28 +0900
+
 libsxg (0.2-1ppa1~bionic) bionic; urgency=medium
 
   * New upstream version 0.2
